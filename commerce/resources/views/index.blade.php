@@ -1,6 +1,8 @@
 @extends('layouts.app')
 @section('content')
 
+
+
 <main>
 
 <section class="swiper-container js-swiper-slider swiper-number-pagination slideshow" data-settings='{

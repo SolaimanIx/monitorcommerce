@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Brand;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Intervention\Image\Laravel\Facades\Image;
@@ -37,13 +38,47 @@ class AdminController extends Controller
         $image = $request->file('image');
         $file_extension = $request->file('image')->extension();
         $file_name = Carbon::now()->timestamp.'.'.$file_extension;
-        $this->GenerateBrandThumbailsImage($image, $file_name);
+        $this->GenerateBrandThumbnailsImage($image, $file_name);
         $brand->image = $file_name;
         $brand->save();
         return redirect()->route('admin.brands')->with('status', 'Brand has been added successfully!');
     }
 
-    public function GenerateBrandThumbailsImage($image, $imageName)
+    public function brand_edit($id)
+    {
+        $brand = Brand::find($id);
+        return view('admin.brand-edit', compact('brand'));
+    }
+
+    public function brand_update(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'slug' =>'required|unique:brands,slug,'.$request->id,
+            'image' => 'mimes:png,jpg,jpeg|max:2048'
+        ]);
+    
+        $brand = Brand::find($request->id);
+        $brand->name = $request->name;
+        $brand->slug = Str::slug($request->name);
+        
+        if($request->hasFile('image')){
+            if(File::exists(public_path('uploads/brands').'/'.$brand->image))
+            {
+                File::delete(public_path('uploads/brands').'/'.$brand->image);
+            }
+            $image = $request->file('image');
+            $file_extention = $request->file('image')->extension();
+            $file_name = Carbon::now()->timestamp.'.'.$file_extention;
+            $this->GenerateBrandThumbnailsImage($image,$file_name);
+            $brand->image = $file_name;
+        }
+        
+        $brand->save();
+        return redirect()->route('admin.brands')->with('status','Brand has been updated successfully!');
+    }
+
+    public function GenerateBrandThumbnailsImage($image, $imageName)
     {
         $destinationPath = public_path('uploads/brands');
         $img = Image::read($image->path());
@@ -52,8 +87,4 @@ class AdminController extends Controller
             $constraint->aspectRatio();
         })->save($destinationPath . '/' . $imageName);
     }
-
-
-
-
 }

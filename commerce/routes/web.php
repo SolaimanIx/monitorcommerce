@@ -18,8 +18,9 @@ Route::get('/', [HomeController::class, 'index'])->name('home.index');
 Route::middleware(['auth'])->group(function(){
     Route::get('/account-dashboard',[UserController::class,'index'])->name('user.account.dashboard');
 });
-Route::middleware([AuthAdmin::class])->group(function(){
+Route::middleware(['auth', AuthAdmin::class])->group(function(){
     Route::get('/admin',[AdminController::class,'index'])->name('admin.index');
+    Route::get('/admin/brands', [AdminController::class, 'brands'])->name('admin.brands');
 });
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

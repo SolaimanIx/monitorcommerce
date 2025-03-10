@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\UserController;
@@ -14,6 +15,11 @@ use App\Http\Middleware\AuthAdmin;
 Auth::routes();
 
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
+Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/shop/{product_slug}', [ShopController::class, 'product_details'])->name('shop.product.details');
+
+
+
 
 Route::middleware(['auth'])->group(function(){
     Route::get('/account-dashboard',[UserController::class,'index'])->name('user.account.dashboard');
@@ -36,6 +42,8 @@ Route::middleware(['auth', AuthAdmin::class])->group(function(){
     Route::get('/admin/category/{id}/edit', [AdminController::class, 'category_edit'])->name('admin.category.edit');
     Route::put('/admin/category/update', [AdminController::class, 'category_update'])->name('admin.category.update');
     Route::delete('/admin/category/{id}/delete', [AdminController::class, 'category_delete'])->name('admin.category.delete');
+    // Routes for the products section of the admin page
+    // This section includes routes for viewing, adding, editing, updating, and deleting products.
 
     Route::get('/admin/products', [AdminController::class, 'products'])->name('admin.products');
     Route::get('/admin/product/add', [AdminController::class, 'product_add'])->name('admin.product.add');

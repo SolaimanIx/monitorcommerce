@@ -98,8 +98,10 @@
 
 function StringToSlug(Text) {
     return Text.toLowerCase()
-        .replace(/[^a-z0-9]+/g, "")
-        .replace(/ +/g, "-");
+        .replace(/[^a-z0-9\s-]+/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
 } 
     </script>
 @endpush

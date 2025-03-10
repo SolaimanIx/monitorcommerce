@@ -97,14 +97,15 @@
         });
 
         $("input[name='name']").on("change", function() {
-            $("input[name='slug']").val(StringToSlug($(this).val()));
+            $("input[name='slug']").val(stringToSlug($(this).val()));
         });
     });
 
-    function StringToSlug(Text) {
+    function stringToSlug(Text) {
         return Text.toLowerCase()
-            .replace(/[^a-z0-9]+/g, "")
-            .replace(/ +/g, "-");
+            .replace(/[^\w\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-');
     }
 </script>
 @endpush

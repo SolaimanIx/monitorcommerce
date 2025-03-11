@@ -64,21 +64,21 @@
                             </td>
                             <td>
                                 <div class="qty-control position-relative">
-                                    <input type="number" name="quantity" value="{{ $item->qty }}" min="1" class="qty-control__number text-center">
-                                    <form method="POST" action="{{ route('cart.qty.decrease', ['rowId'=>$item->rowId]) }}">
+                                    <input type="number" name="quantity" value="{{ $item->qty }}" min="1" max="99" readonly class="qty-control__number text-center">
+                                    <form method="POST" action="{{ route('cart.qty.decrease', ['rowId'=>$item->rowId]) }}" class="d-inline">
                                         @csrf
                                         @method('PUT')
-                                        <div class="qty-control__reduce">-</div>
+                                        <button type="submit" class="qty-control__reduce" style="border:none;background:none">-</button>
                                     </form>
-                                    <form method="POST" action="{{ route('cart.qty.increase', ['rowId'=>$item->rowId]) }}">
+                                    <form method="POST" action="{{ route('cart.qty.increase', ['rowId'=>$item->rowId]) }}" class="d-inline">
                                         @csrf
                                         @method('PUT')
-                                        <div class="qty-control__increase">+</div>
+                                        <button type="submit" class="qty-control__increase" style="border:none;background:none">+</button>
                                     </form>
                                 </div>
                             </td>
                             <td>
-                                <span class="shopping-cart__subtotal">${{ $item->subTotal() }}</span>
+                                <span class="shopping-cart__subtotal">${{ number_format($item->price * $item->qty, 2) }}</span>
                             </td>
                             <td>
                                 <form method="POST" action="{{route('cart.item.remove',['rowId'=>$item->rowId])}}">
@@ -117,7 +117,7 @@
                             <tbody>
                                 <tr>
                                     <th>Subtotal</th>
-                                    <td>${{ Cart::instance('cart')->subtotal() }}</td>
+                                    <td>${{ number_format((float)str_replace(',', '', Cart::instance('cart')->subtotal()), 2) }}</td>
                                 </tr>
                                 <tr>
                                     <th>Shipping</th>
@@ -125,11 +125,11 @@
                                 </tr>
                                 <tr>
                                     <th>VAT</th>
-                                    <td>${{ Cart::instance('cart')->tax() }}</td>
+                                    <td>${{ number_format((float)str_replace(',', '', Cart::instance('cart')->tax()), 2) }}</td>
                                 </tr>
                                 <tr>
                                     <th>Total</th>
-                                    <td>${{ Cart::instance('cart')->total() }}</td>
+                                    <td>${{ number_format((float)str_replace(',', '', Cart::instance('cart')->total()), 2) }}</td>
                                 </tr>
                             </tbody>
                         </table>

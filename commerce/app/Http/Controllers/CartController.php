@@ -30,7 +30,9 @@ class CartController extends Controller
     {
         $product = Cart::instance('cart')->get($rowId);
         $qty = $product->qty + 1;
-        Cart::instance('cart')->update($rowId,$qty);
+        if ($qty <= 99) {  // Adding a reasonable maximum quantity limit
+            Cart::instance('cart')->update($rowId, $qty);
+        }
         return redirect()->back();
     }
 
@@ -38,7 +40,9 @@ class CartController extends Controller
     {
         $product = Cart::instance('cart')->get($rowId);
         $qty = $product->qty - 1;
-        Cart::instance('cart')->update($rowId,$qty);
+        if ($qty > 0) {
+            Cart::instance('cart')->update($rowId, $qty);
+        }
         return redirect()->back();
     }
 

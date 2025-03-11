@@ -149,49 +149,14 @@
                     <div id="accordion-filter-brand" class="accordion-collapse collapse show border-0"
                         aria-labelledby="accordion-heading-brand" data-bs-parent="#brand-filters">
                         <div class="search-field multi-select accordion-body px-0 pb-0">
-                            <select class="d-none" multiple name="total-numbers-list">
-                                <option value="1">Adidas</option>
-                                <option value="2">Balmain</option>
-                                <option value="3">Balenciaga</option>
-                                <option value="4">Burberry</option>
-                                <option value="5">Kenzo</option>
-                                <option value="5">Givenchy</option>
-                                <option value="5">Zara</option>
-                            </select>
-                            <div class="search-field__input-wrapper mb-3">
-                                <input type="text" name="search_text"
-                                    class="search-field__input form-control form-control-sm border-light border-2"
-                                    placeholder="Search" />
-                            </div>
                             <ul class="multi-select__list list-unstyled">
-                                <li class="search-suggestion__item multi-select__item text-primary js-search-select js-multi-select">
-                                    <span class="me-auto">Adidas</span>
-                                    <span class="text-secondary">2</span>
+                                @foreach($brands as $brand)
+                                <li class="search-suggestion__item multi-select__item text-primary">
+                                    <a href="{{ route('shop.index', ['brand' => $brand->name]) }}" class="d-flex w-100 text-decoration-none">
+                                        <span class="me-auto">{{ $brand->name }}</span>
+                                    </a>
                                 </li>
-                                <li class="search-suggestion__item multi-select__item text-primary js-search-select js-multi-select">
-                                    <span class="me-auto">Balmain</span>
-                                    <span class="text-secondary">7</span>
-                                </li>
-                                <li class="search-suggestion__item multi-select__item text-primary js-search-select js-multi-select">
-                                    <span class="me-auto">Balenciaga</span>
-                                    <span class="text-secondary">10</span>
-                                </li>
-                                <li class="search-suggestion__item multi-select__item text-primary js-search-select js-multi-select">
-                                    <span class="me-auto">Burberry</span>
-                                    <span class="text-secondary">39</span>
-                                </li>
-                                <li class="search-suggestion__item multi-select__item text-primary js-search-select js-multi-select">
-                                    <span class="me-auto">Kenzo</span>
-                                    <span class="text-secondary">95</span>
-                                </li>
-                                <li class="search-suggestion__item multi-select__item text-primary js-search-select js-multi-select">
-                                    <span class="me-auto">Givenchy</span>
-                                    <span class="text-secondary">1092</span>
-                                </li>
-                                <li class="search-suggestion__item multi-select__item text-primary js-search-select js-multi-select">
-                                    <span class="me-auto">Zara</span>
-                                    <span class="text-secondary">48</span>
-                                </li>
+                                @endforeach
                             </ul>
                         </div>
                     </div>

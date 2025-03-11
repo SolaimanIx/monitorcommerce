@@ -51,10 +51,10 @@
                                 <div class="swiper-slide product-single__image-item"><img loading="lazy" class="h-auto"
                                         src="{{ asset('uploads/products/thumbnails')}}/{{$product->image}}" width="104" height="104" alt="" /></div>
 
-                             @foreach(explode(",",$product->images) as $gimg)
+                                @foreach(explode(",",$product->images) as $gimg)
                                 <div class="swiper-slide product-single__image-item"><img loading="lazy" class="h-auto"
                                         src="{{ asset('uploads/products/thumbnails')}}/{{$gimg}}" width="104" height="104" alt="" /></div>
-                              @endforeach
+                                @endforeach
                             </div>
                         </div>
                     </div>
@@ -113,17 +113,26 @@
                 <div class="product-single__short-desc">
                     <p>P{{ $product->short_description}}</p>
                 </div>
-                <form name="addtocart-form" method="post">
+
+                @if(Cart::instance('cart')->content()->where('id', $product->id)->count() > 0)
+                <a href="{{ route('cart.index') }}" class="btn btn-warning mb-3">Go to Cart</a>
+                @else
+                <form name="addtocart-form" method="post" action="{{ route('cart.add') }}">
+                    @csrf
                     <div class="product-single__addtocart">
                         <div class="qty-control position-relative">
                             <input type="number" name="quantity" value="1" min="1" class="qty-control__number text-center">
                             <div class="qty-control__reduce">-</div>
                             <div class="qty-control__increase">+</div>
                         </div><!-- .qty-control -->
-                        <button type="submit" class="btn btn-primary btn-addtocart js-open-aside" data-aside="cartDrawer">Add to
+                        <input type="hidden" name="id" value="{{ $product->id }}">
+                        <input type="hidden" name="name" value="{{ $product->name }}">
+                        <input type="hidden" name="price" value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}">
+                        <button type="submit" class="btn btn-primary btn-addtocart" data-aside="cartDrawer">Add to
                             Cart</button>
                     </div>
                 </form>
+                @endif
                 <div class="product-single__addtolinks">
                     <a href="#" class="menu-link menu-link_us-s add-to-wishlist"><svg width="16" height="16" viewBox="0 0 20 20"
                             fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -392,7 +401,7 @@
             }
           }'>
                 <div class="swiper-wrapper">
-                @foreach($rproducts as $rproduct)
+                    @foreach($rproducts as $rproduct)
                     <div class="swiper-slide product-card">
                         <div class="pc__img-wrapper">
                             <a href="{{ route('shop.product.details',['product_slug'=>$rproduct->slug]) }}">
@@ -403,10 +412,21 @@
                                     alt="{{ $rproduct->name }}" class="pc__img pc__img-second">
                                 @endforeach
                             </a>
-                           
-                            <button
-                                class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart js-open-aside"
-                                data-aside="cartDrawer" title="Add To Cart">Add To Cart</button>
+
+                            @if(Cart::instance('cart')->content()->where('id', $rproduct->id)->count() > 0)
+                            <a href="{{ route('cart.index') }}" class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium btn-warning mb-3">Go to Cart</a>
+                            @else
+                            <form name="addtocart-form" method="post" action="{{ route('cart.add') }}">
+                                @csrf
+                                <input type="hidden" name="id" value="{{ $rproduct->id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <input type="hidden" name="name" value="{{ $rproduct->name }}">
+                                <input type="hidden" name="price" value="{{ $rproduct->sale_price == '' ? $rproduct->regular_price : $rproduct->sale_price }}">
+                                <button type="submit"
+                                    class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium"
+                                    data-aside="cartDrawer" title="Add To Cart">Add To Cart</button>
+                            </form>
+                            @endif
                         </div>
 
                         <div class="pc__info position-relative">
@@ -414,11 +434,11 @@
                             <h6 class="pc__title"><a href="{{ route('shop.product.details',['product_slug'=>$rproduct->slug]) }}">{{ $rproduct->name}}</a></h6>
                             <div class="product-card__price d-flex">
                                 <span class="money price">
-                                @if($rproduct->sale_price)
+                                    @if($rproduct->sale_price)
                                     <s>${{ $rproduct->regular_price }}</s> ${{ $rproduct->sale_price }}
-                                @else
+                                    @else
                                     ${{ $rproduct->regular_price }}
-                                @endif
+                                    @endif
                                 </span>
                             </div>
 
@@ -430,7 +450,7 @@
                             </button>
                         </div>
                     </div>
-                @endforeach
+                    @endforeach
                 </div><!-- /.swiper-wrapper -->
             </div><!-- /.swiper-container js-swiper-slider -->
 

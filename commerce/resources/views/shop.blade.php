@@ -29,36 +29,17 @@
                         aria-labelledby="accordion-heading-1" data-bs-parent="#categories-list">
                         <div class="accordion-body px-0 pb-0 pt-3">
                             <ul class="list list-inline mb-0">
+                                @foreach($categories as $category)
                                 <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Dresses</a>
+                                    <a href="{{ route('shop.index', ['category' => $category->name]) }}" 
+                                       class="menu-link py-1 d-flex align-items-center {{ $selectedCategory === $category->name ? 'fw-bold active' : '' }}">
+                                        @if($selectedCategory === $category->name)
+                                        <i class="fas fa-check me-2"></i>
+                                        @endif
+                                        {{ $category->name }}
+                                    </a>
                                 </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Shorts</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Sweatshirts</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Swimwear</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Jackets</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">T-Shirts & Tops</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Jeans</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Trousers</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Men</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Jumpers & Cardigans</a>
-                                </li>
+                                @endforeach
                             </ul>
                         </div>
                     </div>
@@ -132,6 +113,7 @@
             </div>
 
 
+            <!-- Brand filters section (previously used for Categories) -->
             <div class="accordion" id="brand-filters">
                 <div class="accordion-item mb-4 pb-3">
                     <h5 class="accordion-header" id="accordion-heading-brand">
@@ -152,8 +134,12 @@
                             <ul class="multi-select__list list-unstyled">
                                 @foreach($brands as $brand)
                                 <li class="search-suggestion__item multi-select__item text-primary">
-                                    <a href="{{ route('shop.index', ['brand' => $brand->name]) }}" class="d-flex w-100 text-decoration-none">
+                                    <a href="{{ route('shop.index', ['filter_brand' => $brand->name]) }}" 
+                                       class="d-flex w-100 text-decoration-none {{ $selectedBrand === $brand->name ? 'fw-bold' : '' }}">
                                         <span class="me-auto">{{ $brand->name }}</span>
+                                        @if($selectedBrand === $brand->name)
+                                        <i class="fas fa-check"></i>
+                                        @endif
                                     </a>
                                 </li>
                                 @endforeach
@@ -162,7 +148,86 @@
                     </div>
                 </div>
             </div>
-
+            
+            <!-- Featured items / Sorting section -->
+            <div class="accordion" id="featured-filters">
+                <div class="accordion-item mb-4 pb-3">
+                    <h5 class="accordion-header" id="accordion-heading-featured">
+                        <button class="accordion-button p-0 border-0 fs-5 text-uppercase" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#accordion-filter-featured" aria-expanded="true" aria-controls="accordion-filter-featured">
+                            Sort By
+                            <svg class="accordion-button__icon type2" viewBox="0 0 10 6" xmlns="http://www.w3.org/2000/svg">
+                                <g aria-hidden="true" stroke="none" fill-rule="evenodd">
+                                    <path
+                                        d="M5.35668 0.159286C5.16235 -0.053094 4.83769 -0.0530941 4.64287 0.159286L0.147611 5.05963C-0.0492049 5.27473 -0.049205 5.62357 0.147611 5.83813C0.344427 6.05323 0.664108 6.05323 0.860924 5.83813L5 1.32706L9.13858 5.83867C9.33589 6.05378 9.65507 6.05378 9.85239 5.83867C10.0492 5.62357 10.0492 5.27473 9.85239 5.06018L5.35668 0.159286Z" />
+                                </g>
+                            </svg>
+                        </button>
+                    </h5>
+                    <div id="accordion-filter-featured" class="accordion-collapse collapse show border-0"
+                        aria-labelledby="accordion-heading-featured" data-bs-parent="#featured-filters">
+                        <div class="search-field multi-select accordion-body px-0 pb-0">
+                            <ul class="multi-select__list list-unstyled">
+                                <li class="search-suggestion__item multi-select__item text-primary">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => null])) }}" 
+                                       class="d-flex w-100 text-decoration-none {{ $selectedSort === null ? 'fw-bold' : '' }}">
+                                        <span class="me-auto">Default</span>
+                                        @if($selectedSort === null)
+                                        <i class="fas fa-check"></i>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li class="search-suggestion__item multi-select__item text-primary">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'newest'])) }}" 
+                                       class="d-flex w-100 text-decoration-none {{ $selectedSort === 'newest' ? 'fw-bold' : '' }}">
+                                        <span class="me-auto">New Arrivals</span>
+                                        @if($selectedSort === 'newest')
+                                        <i class="fas fa-check"></i>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li class="search-suggestion__item multi-select__item text-primary">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'price_low'])) }}" 
+                                       class="d-flex w-100 text-decoration-none {{ $selectedSort === 'price_low' ? 'fw-bold' : '' }}">
+                                        <span class="me-auto">Price: Low to High</span>
+                                        @if($selectedSort === 'price_low')
+                                        <i class="fas fa-check"></i>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li class="search-suggestion__item multi-select__item text-primary">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'price_high'])) }}" 
+                                       class="d-flex w-100 text-decoration-none {{ $selectedSort === 'price_high' ? 'fw-bold' : '' }}">
+                                        <span class="me-auto">Price: High to Low</span>
+                                        @if($selectedSort === 'price_high')
+                                        <i class="fas fa-check"></i>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li class="search-suggestion__item multi-select__item text-primary">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'name_az'])) }}" 
+                                       class="d-flex w-100 text-decoration-none {{ $selectedSort === 'name_az' ? 'fw-bold' : '' }}">
+                                        <span class="me-auto">Name: A-Z</span>
+                                        @if($selectedSort === 'name_az')
+                                        <i class="fas fa-check"></i>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li class="search-suggestion__item multi-select__item text-primary">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'name_za'])) }}" 
+                                       class="d-flex w-100 text-decoration-none {{ $selectedSort === 'name_za' ? 'fw-bold' : '' }}">
+                                        <span class="me-auto">Name: Z-A</span>
+                                        @if($selectedSort === 'name_za')
+                                        <i class="fas fa-check"></i>
+                                        @endif
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
 
             <div class="accordion" id="price-filters">
                 <div class="accordion-item mb-4">
@@ -292,17 +357,15 @@
                 </div>
 
                 <div class="shop-acs d-flex align-items-center justify-content-between justify-content-md-end flex-grow-1">
-                    <select class="shop-acs__select form-select w-auto border-0 py-0 order-1 order-md-0" aria-label="Sort Items"
-                        name="total-number">
-                        <option selected>Default Sorting</option>
-                        <option value="1">Featured</option>
-                        <option value="2">Best selling</option>
-                        <option value="3">Alphabetically, A-Z</option>
-                        <option value="3">Alphabetically, Z-A</option>
-                        <option value="3">Price, low to high</option>
-                        <option value="3">Price, high to low</option>
-                        <option value="3">Date, old to new</option>
-                        <option value="3">Date, new to old</option>
+                    <!-- Update the select dropdown to use the sort parameter -->
+                    <select class="shop-acs__select form-select w-auto border-0 py-0 order-1 order-md-0" 
+                            aria-label="Sort Items" name="sort" onchange="window.location.href=`{{ route('shop.index') }}?sort=${this.value}`">
+                        <option value="" {{ $selectedSort === null ? 'selected' : '' }}>Default Sorting</option>
+                        <option value="newest" {{ $selectedSort === 'newest' ? 'selected' : '' }}>New Arrivals</option>
+                        <option value="price_low" {{ $selectedSort === 'price_low' ? 'selected' : '' }}>Price, low to high</option>
+                        <option value="price_high" {{ $selectedSort === 'price_high' ? 'selected' : '' }}>Price, high to low</option>
+                        <option value="name_az" {{ $selectedSort === 'name_az' ? 'selected' : '' }}>Alphabetically, A-Z</option>
+                        <option value="name_za" {{ $selectedSort === 'name_za' ? 'selected' : '' }}>Alphabetically, Z-A</option>
                     </select>
 
                     <div class="shop-asc__seprator mx-3 bg-light d-none d-md-block order-md-0"></div>

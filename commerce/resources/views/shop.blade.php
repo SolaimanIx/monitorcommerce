@@ -245,17 +245,42 @@
                     </h5>
                     <div id="accordion-filter-price" class="accordion-collapse collapse show border-0"
                         aria-labelledby="accordion-heading-price" data-bs-parent="#price-filters">
-                        <input class="price-range-slider" type="text" name="price_range" value="" data-slider-min="10"
-                            data-slider-max="1000" data-slider-step="5" data-slider-value="[250,450]" data-currency="$" />
-                        <div class="price-range__info d-flex align-items-center mt-2">
-                            <div class="me-auto">
-                                <span class="text-secondary">Min Price: </span>
-                                <span class="price-range__min">$250</span>
-                            </div>
-                            <div>
-                                <span class="text-secondary">Max Price: </span>
-                                <span class="price-range__max">$450</span>
-                            </div>
+                        <div class="price-filter-content">
+                            <form id="price-filter-form" method="GET" action="{{ route('shop.index') }}">
+                                <!-- Preserve existing filters -->
+                                @foreach(request()->except(['min_price', 'max_price', 'page', 'price_range']) as $key => $value)
+                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                @endforeach
+                                
+                                <div id="price-slider-container" 
+                                     data-min="{{ $minPrice }}" 
+                                     data-max="{{ $maxPrice }}" 
+                                     data-current-min="{{ $currentMinPrice }}" 
+                                     data-current-max="{{ $currentMaxPrice }}">
+                                    <!-- The slider will be inserted here by JS -->
+                                </div>
+                                    
+                                <input type="hidden" name="min_price" id="min_price" value="{{ $currentMinPrice }}">
+                                <input type="hidden" name="max_price" id="max_price" value="{{ $currentMaxPrice }}">
+                                
+                                <div class="price-range__info d-flex align-items-center mt-3">
+                                    <div class="me-auto">
+                                        <span class="text-secondary">Min Price: </span>
+                                        <span class="price-range__min">${{ $currentMinPrice }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-secondary">Max Price: </span>
+                                        <span class="price-range__max">${{ $currentMaxPrice }}</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button type="submit" class="btn btn-sm btn-primary">Apply Filter</button>
+                                    @if(request()->has('min_price') || request()->has('max_price'))
+                                        <a href="{{ route('shop.index', array_diff_key(request()->all(), ['min_price' => '', 'max_price' => '', 'price_range' => '', 'page' => ''])) }}" 
+                                           class="btn btn-sm btn-outline-secondary">Reset</a>
+                                    @endif
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -486,3 +511,105 @@
 </main>
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        // Get price slider container
+        const sliderContainer = document.getElementById('price-slider-container');
+        if (!sliderContainer) {
+            console.error('Price slider container not found');
+            return;
+        }
+        
+        // Get slider configuration from data attributes
+        const minPrice = parseInt(sliderContainer.dataset.min);
+        const maxPrice = parseInt(sliderContainer.dataset.max);
+        const currentMinPrice = parseInt(sliderContainer.dataset.currentMin);
+        const currentMaxPrice = parseInt(sliderContainer.dataset.currentMax);
+        
+        // Create slider element
+        const sliderElement = document.createElement('div');
+        sliderElement.classList.add('price-range-slider');
+        sliderContainer.appendChild(sliderElement);
+        
+        console.log('Creating slider with:', {
+            min: minPrice,
+            max: maxPrice,
+            currentMin: currentMinPrice,
+            currentMax: currentMaxPrice
+        });
+        
+        // Initialize noUiSlider
+        if (typeof noUiSlider !== 'undefined') {
+            noUiSlider.create(sliderElement, {
+                start: [currentMinPrice, currentMaxPrice],
+                connect: true,
+                step: 1,
+                range: {
+                    'min': minPrice,
+                    'max': maxPrice
+                },
+                format: {
+                    to: function(value) {
+                        return Math.round(value);
+                    },
+                    from: function(value) {
+                        return Math.round(value);
+                    }
+                }
+            });
+            
+            // Update hidden fields when slider values change
+            sliderElement.noUiSlider.on('update', function(values, handle) {
+                const minValue = parseInt(values[0]);
+                const maxValue = parseInt(values[1]);
+                
+                document.getElementById('min_price').value = minValue;
+                document.getElementById('max_price').value = maxValue;
+                document.querySelector('.price-range__min').textContent = '$' + minValue;
+                document.querySelector('.price-range__max').textContent = '$' + maxValue;
+            });
+        } else {
+            // Fallback to Bootstrap Slider if noUiSlider is not available
+            $(sliderElement).slider({
+                min: minPrice,
+                max: maxPrice,
+                step: 1,
+                value: [currentMinPrice, currentMaxPrice],
+                tooltip: 'hide'
+            }).on('slide', function(slideEvt) {
+                document.getElementById('min_price').value = slideEvt.value[0];
+                document.getElementById('max_price').value = slideEvt.value[1];
+                document.querySelector('.price-range__min').textContent = '$' + slideEvt.value[0];
+                document.querySelector('.price-range__max').textContent = '$' + slideEvt.value[1];
+            });
+        }
+    } catch(e) {
+        console.error("Error initializing price slider:", e);
+        
+        // Create a simple fallback with two number inputs
+        const container = document.getElementById('price-slider-container');
+        if (container) {
+            container.innerHTML = `
+                <div class="row g-2">
+                    <div class="col">
+                        <label for="min_price_input" class="form-label small">Min Price ($)</label>
+                        <input type="number" class="form-control form-control-sm" id="min_price_input" 
+                               value="{{ $currentMinPrice }}" min="{{ $minPrice }}" max="{{ $maxPrice }}"
+                               onchange="document.getElementById('min_price').value=this.value; document.querySelector('.price-range__min').textContent='$'+this.value;">
+                    </div>
+                    <div class="col">
+                        <label for="max_price_input" class="form-label small">Max Price ($)</label>
+                        <input type="number" class="form-control form-control-sm" id="max_price_input" 
+                               value="{{ $currentMaxPrice }}" min="{{ $minPrice }}" max="{{ $maxPrice }}"
+                               onchange="document.getElementById('max_price').value=this.value; document.querySelector('.price-range__max').textContent='$'+this.value;">
+                    </div>
+                </div>
+            `;
+        }
+    }
+});
+</script>
+@endpush

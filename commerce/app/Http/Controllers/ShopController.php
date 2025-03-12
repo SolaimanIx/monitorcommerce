@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Brand;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ShopController extends Controller
 {
@@ -30,6 +31,38 @@ class ShopController extends Controller
             $query->whereIn('brand_id', $brandId);
         }
         
+        // Get actual min and max prices from the database
+        $priceStats = DB::select("
+            SELECT 
+                COALESCE(MIN(CASE WHEN sale_price > 0 THEN sale_price ELSE regular_price END), 0) as min_price,
+                COALESCE(MAX(CASE WHEN sale_price > 0 THEN sale_price ELSE regular_price END), 1000) as max_price
+            FROM products
+        ");
+        
+        $minPrice = max(1, floor($priceStats[0]->min_price));
+        $maxPrice = ceil($priceStats[0]->max_price);
+        
+        // Use requested price values if provided, otherwise use actual min/max from database
+        $currentMinPrice = $request->filled('min_price') ? $request->input('min_price') : $minPrice;
+        $currentMaxPrice = $request->filled('max_price') ? $request->input('max_price') : $maxPrice;
+        
+        // Filter by price range if either min_price or max_price is provided
+        if ($request->filled('min_price') || $request->filled('max_price')) {
+            $query->where(function($q) use ($currentMinPrice, $currentMaxPrice) {
+                $q->where(function($inner) use ($currentMinPrice, $currentMaxPrice) {
+                    $inner->where('sale_price', '>', 0)
+                        ->where('sale_price', '>=', $currentMinPrice)
+                        ->where('sale_price', '<=', $currentMaxPrice);
+                })->orWhere(function($inner) use ($currentMinPrice, $currentMaxPrice) {
+                    $inner->where(function($deepInner) {
+                        $deepInner->where('sale_price', 0)->orWhereNull('sale_price');
+                    })
+                    ->where('regular_price', '>=', $currentMinPrice)
+                    ->where('regular_price', '<=', $currentMaxPrice);
+                });
+            });
+        }
+        
         // Sort products based on the 'sort' parameter
         if ($request->has('sort')) {
             switch ($request->sort) {
@@ -37,12 +70,10 @@ class ShopController extends Controller
                     $query->orderBy('created_at', 'desc');
                     break;
                 case 'price_low':
-                    $query->orderBy('sale_price', 'asc')
-                          ->orderBy('regular_price', 'asc');
+                    $query->orderBy(DB::raw('COALESCE(NULLIF(sale_price, 0), regular_price)'), 'asc');
                     break;
                 case 'price_high':
-                    $query->orderBy('sale_price', 'desc')
-                          ->orderBy('regular_price', 'desc');
+                    $query->orderBy(DB::raw('COALESCE(NULLIF(sale_price, 0), regular_price)'), 'desc');
                     break;
                 case 'name_az':
                     $query->orderBy('name', 'asc');
@@ -59,7 +90,7 @@ class ShopController extends Controller
             $query->orderBy('created_at', 'desc');
         }
         
-        $products = $query->paginate(12);
+        $products = $query->paginate(12)->appends($request->except('page'));
         
         // Get categories for the filter sidebar
         $categories = Category::select('name')->distinct()->get();
@@ -72,7 +103,8 @@ class ShopController extends Controller
         $selectedBrand = $request->filter_brand ?? null;
         $selectedSort = $request->sort ?? null;
         
-        return view('shop', compact('products', 'categories', 'brands', 'selectedCategory', 'selectedBrand', 'selectedSort'));
+        return view('shop', compact('products', 'categories', 'brands', 'selectedCategory', 'selectedBrand', 
+            'selectedSort', 'minPrice', 'maxPrice', 'currentMinPrice', 'currentMaxPrice'));
     }
 
     public function product_details($product_slug)

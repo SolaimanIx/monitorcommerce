@@ -45,28 +45,26 @@
                     </td>
                     <td>
                       <div class="qty-control position-relative">
-                        <input type="number" name="quantity" value="{{ $item->qty }}" min="1" class="qty-control__number text-center">
-                        <div class="qty-control__reduce">-</div>
-                        <div class="qty-control__increase">+</div>
+                        <input type="number" name="quantity" value="1" min="1" class="qty-control__number text-center" readonly>
                       </div><!-- .qty-control -->
                     </td>
                     <td>
-                      <span class="shopping-cart__subtotal">${{ $item->subtotal }}</span>
+                      <span class="shopping-cart__subtotal">${{ $item->price }}</span>
                     </td>
                     <td>
-                      <div class="d-flex flex-column">
-                        <form action="{{ route('wishlist.moveToCart') }}" method="post" class="mb-2">
+                      <div class="d-flex align-items-center wishlist-actions">
+                        <form action="{{ route('wishlist.moveToCart') }}" method="post" class="me-2">
                           @csrf
                           <input type="hidden" name="rowId" value="{{ $item->rowId }}">
-                          <button type="submit" class="btn btn-sm btn-primary" title="Move to Cart">
-                            <i class="fa fa-shopping-cart"></i> Move to Cart
+                          <button type="submit" class="btn btn-sm btn-primary move-to-cart-btn" title="Move to Cart">
+                            <i class="fa fa-shopping-cart"></i> Cart
                           </button>
                         </form>
                         <form action="{{ route('wishlist.remove') }}" method="post">
                           @csrf
                           <input type="hidden" name="rowId" value="{{ $item->rowId }}">
-                          <button type="submit" class="remove-cart" title="Remove item">
-                            <svg width="10" height="10" viewBox="0 0 10 10" fill="#767676" xmlns="http://www.w3.org/2000/svg">
+                          <button type="submit" class="remove-cart-btn" title="Remove item">
+                            <svg width="16" height="16" viewBox="0 0 10 10" fill="#ffffff" xmlns="http://www.w3.org/2000/svg">
                               <path d="M0.259435 8.85506L9.11449 0L10 0.885506L1.14494 9.74056L0.259435 8.85506Z" />
                               <path d="M0.885506 0.0889838L9.74057 8.94404L8.85506 9.82955L0 0.97449L0.885506 0.0889838Z" />
                             </svg>
@@ -83,6 +81,44 @@
               @endif
             </tbody>
           </table>
+          
+          <style>
+            .wishlist-actions {
+              display: flex;
+              align-items: center;
+            }
+            .move-to-cart-btn {
+              background-color: #4a6cf7;
+              border-color: #4a6cf7;
+              border-radius: 4px;
+              color: #fff;
+              padding: 0.375rem 0.75rem;
+              transition: all 0.3s ease;
+            }
+            .move-to-cart-btn:hover {
+              background-color: #3a5bd9;
+              border-color: #3a5bd9;
+              transform: translateY(-2px);
+              box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+            .remove-cart-btn {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 30px;
+              height: 30px;
+              border-radius: 50%;
+              background-color: #ff5252;
+              border: none;
+              transition: all 0.3s ease;
+            }
+            .remove-cart-btn:hover {
+              background-color: #ff1a1a;
+              transform: rotate(90deg);
+              box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+          </style>
+          
           @if(count($items) > 0)
             <div class="cart-table-footer">
               <div class="d-flex justify-content-end">

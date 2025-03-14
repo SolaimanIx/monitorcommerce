@@ -34,7 +34,8 @@ class WishlistController extends Controller
         return redirect()->back()->with('info', 'This product is already in your wishlist!');
     }
     
-    Cart::instance('wishlist')->add($request->id, $request->name, $request->quantity, $request->price)
+    // Always set quantity to 1 for wishlist items
+    Cart::instance('wishlist')->add($request->id, $request->name, 1, $request->price)
         ->associate('App\Models\Product');
         
     return redirect()->back()->with('success', 'Product added to wishlist successfully!');

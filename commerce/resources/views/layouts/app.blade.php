@@ -24,6 +24,46 @@
         crossorigin="anonymous" referrerpolicy="no-referrer">
     @stack('styles')
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@14.6.3/distribute/nouislider.min.css">
+    <style>
+        #header {
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+
+        .logo__image {
+            max-width: 220px;
+        }
+        
+        /* Improved wishlist count styling */
+        .wishlist-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: bold;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            animation: pulse 1.5s infinite;
+            transition: all 0.3s ease;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .header-tools__item {
+            position: relative;
+        }
+    </style>
 </head>
 
 <body class="gradient-bg">
@@ -250,16 +290,6 @@
                 fill="currentColor" />
         </symbol>
     </svg>
-    <style>
-        #header {
-            padding-top: 8px;
-            padding-bottom: 8px;
-        }
-
-        .logo__image {
-            max-width: 220px;
-        }
-    </style>
     <div class="header-mobile header_sticky">
         <div class="container d-flex align-items-center h-100">
             <a class="mobile-nav-activator d-block position-relative" href="#">
@@ -485,10 +515,13 @@
 
 
 
-                    <a href="wishlist.html" class="header-tools__item">
+                    <a href="{{route('wishlist.index')}}" class="header-tools__item">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <use href="#icon_heart" />
                         </svg>
+                        @if(Cart::instance('wishlist')->content()->count() > 0)
+                        <span class="wishlist-count">{{ Cart::instance('wishlist')->content()->count() }}</span>
+                        @endif
                     </a>
 
                     <a href="{{ route('cart.index') }}" class="header-tools__item header-tools__cart">
@@ -497,7 +530,7 @@
                             <use href="#icon_cart" />
                         </svg>
                         @if(Cart::instance('cart')->content()->count() > 0)
-                            <span class="cart-amount d-block position-absolute js-cart-items-count">{{ Cart::instance('cart')->content()->count() }}</span>
+                        <span class="cart-amount d-block position-absolute js-cart-items-count">{{ Cart::instance('cart')->content()->count() }}</span>
                         @endif
                     </a>
                 </div>
@@ -658,7 +691,9 @@
                             xmlns="http://www.w3.org/2000/svg">
                             <use href="#icon_heart" />
                         </svg>
-                        <span class="wishlist-amount d-block position-absolute js-wishlist-count">3</span>
+                        @if(Cart::instance('wishlist')->content()->count() > 0)
+                        <span class="wishlist-count js-wishlist-count">{{ Cart::instance('wishlist')->content()->count() }}</span>
+                        @endif
                     </div>
                     <span>Wishlist</span>
                 </a>

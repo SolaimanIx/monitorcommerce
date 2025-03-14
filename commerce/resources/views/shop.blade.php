@@ -1,6 +1,22 @@
 @extends('layouts.app')
 @section('content')
+<style>
+  .brand-list li, .category-list li{
+    line-height: 40px;
+  }
 
+  .brand-list li .chk-brand , .category-list li .chk-category{
+    width: 1rem;
+    height: 1rem;
+    color: #e4e4e4;
+    border: 0.125rem solid currentColor;
+    border-radius: 0;
+    margin-right: 0.75rem;
+  }
+  .filled-heart{
+    color: orange;
+  }
+</style>
 <main class="pt-90">
     <section class="shop-main container d-flex pt-4 pt-xl-5">
         <div class="shop-sidebar side-sticky bg-body" id="shopFilter">
@@ -31,8 +47,8 @@
                             <ul class="list list-inline mb-0">
                                 @foreach($categories as $category)
                                 <li class="list-item">
-                                    <a href="{{ route('shop.index', ['category' => $category->name]) }}" 
-                                       class="menu-link py-1 d-flex align-items-center {{ $selectedCategory === $category->name ? 'fw-bold active' : '' }}">
+                                    <a href="{{ route('shop.index', ['category' => $category->name]) }}"
+                                        class="menu-link py-1 d-flex align-items-center {{ $selectedCategory === $category->name ? 'fw-bold active' : '' }}">
                                         @if($selectedCategory === $category->name)
                                         <i class="fas fa-check me-2"></i>
                                         @endif
@@ -134,8 +150,8 @@
                             <ul class="multi-select__list list-unstyled">
                                 @foreach($brands as $brand)
                                 <li class="search-suggestion__item multi-select__item text-primary">
-                                    <a href="{{ route('shop.index', ['filter_brand' => $brand->name]) }}" 
-                                       class="d-flex w-100 text-decoration-none {{ $selectedBrand === $brand->name ? 'fw-bold' : '' }}">
+                                    <a href="{{ route('shop.index', ['filter_brand' => $brand->name]) }}"
+                                        class="d-flex w-100 text-decoration-none {{ $selectedBrand === $brand->name ? 'fw-bold' : '' }}">
                                         <span class="me-auto">{{ $brand->name }}</span>
                                         @if($selectedBrand === $brand->name)
                                         <i class="fas fa-check"></i>
@@ -148,7 +164,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Featured items / Sorting section -->
             <div class="accordion" id="featured-filters">
                 <div class="accordion-item mb-4 pb-3">
@@ -169,8 +185,8 @@
                         <div class="search-field multi-select accordion-body px-0 pb-0">
                             <ul class="multi-select__list list-unstyled">
                                 <li class="search-suggestion__item multi-select__item text-primary">
-                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => null])) }}" 
-                                       class="d-flex w-100 text-decoration-none {{ $selectedSort === null ? 'fw-bold' : '' }}">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => null])) }}"
+                                        class="d-flex w-100 text-decoration-none {{ $selectedSort === null ? 'fw-bold' : '' }}">
                                         <span class="me-auto">Default</span>
                                         @if($selectedSort === null)
                                         <i class="fas fa-check"></i>
@@ -178,8 +194,8 @@
                                     </a>
                                 </li>
                                 <li class="search-suggestion__item multi-select__item text-primary">
-                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'newest'])) }}" 
-                                       class="d-flex w-100 text-decoration-none {{ $selectedSort === 'newest' ? 'fw-bold' : '' }}">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'newest'])) }}"
+                                        class="d-flex w-100 text-decoration-none {{ $selectedSort === 'newest' ? 'fw-bold' : '' }}">
                                         <span class="me-auto">New Arrivals</span>
                                         @if($selectedSort === 'newest')
                                         <i class="fas fa-check"></i>
@@ -187,8 +203,8 @@
                                     </a>
                                 </li>
                                 <li class="search-suggestion__item multi-select__item text-primary">
-                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'price_low'])) }}" 
-                                       class="d-flex w-100 text-decoration-none {{ $selectedSort === 'price_low' ? 'fw-bold' : '' }}">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'price_low'])) }}"
+                                        class="d-flex w-100 text-decoration-none {{ $selectedSort === 'price_low' ? 'fw-bold' : '' }}">
                                         <span class="me-auto">Price: Low to High</span>
                                         @if($selectedSort === 'price_low')
                                         <i class="fas fa-check"></i>
@@ -196,8 +212,8 @@
                                     </a>
                                 </li>
                                 <li class="search-suggestion__item multi-select__item text-primary">
-                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'price_high'])) }}" 
-                                       class="d-flex w-100 text-decoration-none {{ $selectedSort === 'price_high' ? 'fw-bold' : '' }}">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'price_high'])) }}"
+                                        class="d-flex w-100 text-decoration-none {{ $selectedSort === 'price_high' ? 'fw-bold' : '' }}">
                                         <span class="me-auto">Price: High to Low</span>
                                         @if($selectedSort === 'price_high')
                                         <i class="fas fa-check"></i>
@@ -205,8 +221,8 @@
                                     </a>
                                 </li>
                                 <li class="search-suggestion__item multi-select__item text-primary">
-                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'name_az'])) }}" 
-                                       class="d-flex w-100 text-decoration-none {{ $selectedSort === 'name_az' ? 'fw-bold' : '' }}">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'name_az'])) }}"
+                                        class="d-flex w-100 text-decoration-none {{ $selectedSort === 'name_az' ? 'fw-bold' : '' }}">
                                         <span class="me-auto">Name: A-Z</span>
                                         @if($selectedSort === 'name_az')
                                         <i class="fas fa-check"></i>
@@ -214,8 +230,8 @@
                                     </a>
                                 </li>
                                 <li class="search-suggestion__item multi-select__item text-primary">
-                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'name_za'])) }}" 
-                                       class="d-flex w-100 text-decoration-none {{ $selectedSort === 'name_za' ? 'fw-bold' : '' }}">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'name_za'])) }}"
+                                        class="d-flex w-100 text-decoration-none {{ $selectedSort === 'name_za' ? 'fw-bold' : '' }}">
                                         <span class="me-auto">Name: Z-A</span>
                                         @if($selectedSort === 'name_za')
                                         <i class="fas fa-check"></i>
@@ -227,7 +243,7 @@
                     </div>
                 </div>
             </div>
-            
+
 
             <div class="accordion" id="price-filters">
                 <div class="accordion-item mb-4">
@@ -249,20 +265,20 @@
                             <form id="price-filter-form" method="GET" action="{{ route('shop.index') }}">
                                 <!-- Preserve existing filters -->
                                 @foreach(request()->except(['min_price', 'max_price', 'page', 'price_range']) as $key => $value)
-                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
                                 @endforeach
-                                
-                                <div id="price-slider-container" 
-                                     data-min="{{ $minPrice }}" 
-                                     data-max="{{ $maxPrice }}" 
-                                     data-current-min="{{ $currentMinPrice }}" 
-                                     data-current-max="{{ $currentMaxPrice }}">
+
+                                <div id="price-slider-container"
+                                    data-min="{{ $minPrice }}"
+                                    data-max="{{ $maxPrice }}"
+                                    data-current-min="{{ $currentMinPrice }}"
+                                    data-current-max="{{ $currentMaxPrice }}">
                                     <!-- The slider will be inserted here by JS -->
                                 </div>
-                                    
+
                                 <input type="hidden" name="min_price" id="min_price" value="{{ $currentMinPrice }}">
                                 <input type="hidden" name="max_price" id="max_price" value="{{ $currentMaxPrice }}">
-                                
+
                                 <div class="price-range__info d-flex align-items-center mt-3">
                                     <div class="me-auto">
                                         <span class="text-secondary">Min Price: </span>
@@ -276,8 +292,8 @@
                                 <div class="mt-3">
                                     <button type="submit" class="btn btn-sm btn-primary">Apply Filter</button>
                                     @if(request()->has('min_price') || request()->has('max_price'))
-                                        <a href="{{ route('shop.index', array_diff_key(request()->all(), ['min_price' => '', 'max_price' => '', 'price_range' => '', 'page' => ''])) }}" 
-                                           class="btn btn-sm btn-outline-secondary">Reset</a>
+                                    <a href="{{ route('shop.index', array_diff_key(request()->all(), ['min_price' => '', 'max_price' => '', 'price_range' => '', 'page' => ''])) }}"
+                                        class="btn btn-sm btn-outline-secondary">Reset</a>
                                     @endif
                                 </div>
                             </form>
@@ -383,8 +399,8 @@
 
                 <div class="shop-acs d-flex align-items-center justify-content-between justify-content-md-end flex-grow-1">
                     <!-- Update the select dropdown to use the sort parameter -->
-                    <select class="shop-acs__select form-select w-auto border-0 py-0 order-1 order-md-0" 
-                            aria-label="Sort Items" name="sort" onchange="window.location.href=`{{ route('shop.index') }}?sort=${this.value}`">
+                    <select class="shop-acs__select form-select w-auto border-0 py-0 order-1 order-md-0"
+                        aria-label="Sort Items" name="sort" onchange="window.location.href=`{{ route('shop.index') }}?sort=${this.value}`">
                         <option value="" {{ $selectedSort === null ? 'selected' : '' }}>Default Sorting</option>
                         <option value="newest" {{ $selectedSort === 'newest' ? 'selected' : '' }}>New Arrivals</option>
                         <option value="price_low" {{ $selectedSort === 'price_low' ? 'selected' : '' }}>Price, low to high</option>
@@ -489,13 +505,28 @@
                                 </div>
                                 <span class="reviews-note text-lowercase text-secondary ms-1">8k+ reviews</span>
                             </div>
-
-                            <button class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist"
+                            @if(Cart::instance('wishlist')->content()->where('id', $product->id)->count() > 0)
+                            <button type="submit" class=" position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist filled-heart"
                                 title="Add To Wishlist">
                                 <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <use href="#icon_heart" />
                                 </svg>
                             </button>
+                            @else
+                            <form method="POST" action="{{ route('wishlist.add') }}">
+                                @csrf
+                                <input type="hidden" name="id" value="{{ $product->id }}" />
+                                <input type="hidden" name="name" value="{{ $product->name }}" />
+                                <input type="hidden" name="price" value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+                                <input type="hidden" name="quantity" value="1" />
+                                <button type="submit" class=" position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist"
+                                    title="Add To Wishlist">
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <use href="#icon_heart" />
+                                    </svg>
+                                </button>
+                            </form>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -514,85 +545,85 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    try {
-        // Get price slider container
-        const sliderContainer = document.getElementById('price-slider-container');
-        if (!sliderContainer) {
-            console.error('Price slider container not found');
-            return;
-        }
-        
-        // Get slider configuration from data attributes
-        const minPrice = parseInt(sliderContainer.dataset.min);
-        const maxPrice = parseInt(sliderContainer.dataset.max);
-        const currentMinPrice = parseInt(sliderContainer.dataset.currentMin);
-        const currentMaxPrice = parseInt(sliderContainer.dataset.currentMax);
-        
-        // Create slider element
-        const sliderElement = document.createElement('div');
-        sliderElement.classList.add('price-range-slider');
-        sliderContainer.appendChild(sliderElement);
-        
-        console.log('Creating slider with:', {
-            min: minPrice,
-            max: maxPrice,
-            currentMin: currentMinPrice,
-            currentMax: currentMaxPrice
-        });
-        
-        // Initialize noUiSlider
-        if (typeof noUiSlider !== 'undefined') {
-            noUiSlider.create(sliderElement, {
-                start: [currentMinPrice, currentMaxPrice],
-                connect: true,
-                step: 1,
-                range: {
-                    'min': minPrice,
-                    'max': maxPrice
-                },
-                format: {
-                    to: function(value) {
-                        return Math.round(value);
-                    },
-                    from: function(value) {
-                        return Math.round(value);
-                    }
-                }
-            });
-            
-            // Update hidden fields when slider values change
-            sliderElement.noUiSlider.on('update', function(values, handle) {
-                const minValue = parseInt(values[0]);
-                const maxValue = parseInt(values[1]);
-                
-                document.getElementById('min_price').value = minValue;
-                document.getElementById('max_price').value = maxValue;
-                document.querySelector('.price-range__min').textContent = '$' + minValue;
-                document.querySelector('.price-range__max').textContent = '$' + maxValue;
-            });
-        } else {
-            // Fallback to Bootstrap Slider if noUiSlider is not available
-            $(sliderElement).slider({
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            // Get price slider container
+            const sliderContainer = document.getElementById('price-slider-container');
+            if (!sliderContainer) {
+                console.error('Price slider container not found');
+                return;
+            }
+
+            // Get slider configuration from data attributes
+            const minPrice = parseInt(sliderContainer.dataset.min);
+            const maxPrice = parseInt(sliderContainer.dataset.max);
+            const currentMinPrice = parseInt(sliderContainer.dataset.currentMin);
+            const currentMaxPrice = parseInt(sliderContainer.dataset.currentMax);
+
+            // Create slider element
+            const sliderElement = document.createElement('div');
+            sliderElement.classList.add('price-range-slider');
+            sliderContainer.appendChild(sliderElement);
+
+            console.log('Creating slider with:', {
                 min: minPrice,
                 max: maxPrice,
-                step: 1,
-                value: [currentMinPrice, currentMaxPrice],
-                tooltip: 'hide'
-            }).on('slide', function(slideEvt) {
-                document.getElementById('min_price').value = slideEvt.value[0];
-                document.getElementById('max_price').value = slideEvt.value[1];
-                document.querySelector('.price-range__min').textContent = '$' + slideEvt.value[0];
-                document.querySelector('.price-range__max').textContent = '$' + slideEvt.value[1];
+                currentMin: currentMinPrice,
+                currentMax: currentMaxPrice
             });
-        }
-    } catch(e) {
-        console.error("Error initializing price slider:", e);
-        
-        // Create a simple fallback with two number inputs
-        const container = document.getElementById('price-slider-container');
-        if (container) {
-            container.innerHTML = `
+
+            // Initialize noUiSlider
+            if (typeof noUiSlider !== 'undefined') {
+                noUiSlider.create(sliderElement, {
+                    start: [currentMinPrice, currentMaxPrice],
+                    connect: true,
+                    step: 1,
+                    range: {
+                        'min': minPrice,
+                        'max': maxPrice
+                    },
+                    format: {
+                        to: function(value) {
+                            return Math.round(value);
+                        },
+                        from: function(value) {
+                            return Math.round(value);
+                        }
+                    }
+                });
+
+                // Update hidden fields when slider values change
+                sliderElement.noUiSlider.on('update', function(values, handle) {
+                    const minValue = parseInt(values[0]);
+                    const maxValue = parseInt(values[1]);
+
+                    document.getElementById('min_price').value = minValue;
+                    document.getElementById('max_price').value = maxValue;
+                    document.querySelector('.price-range__min').textContent = '$' + minValue;
+                    document.querySelector('.price-range__max').textContent = '$' + maxValue;
+                });
+            } else {
+                // Fallback to Bootstrap Slider if noUiSlider is not available
+                $(sliderElement).slider({
+                    min: minPrice,
+                    max: maxPrice,
+                    step: 1,
+                    value: [currentMinPrice, currentMaxPrice],
+                    tooltip: 'hide'
+                }).on('slide', function(slideEvt) {
+                    document.getElementById('min_price').value = slideEvt.value[0];
+                    document.getElementById('max_price').value = slideEvt.value[1];
+                    document.querySelector('.price-range__min').textContent = '$' + slideEvt.value[0];
+                    document.querySelector('.price-range__max').textContent = '$' + slideEvt.value[1];
+                });
+            }
+        } catch (e) {
+            console.error("Error initializing price slider:", e);
+
+            // Create a simple fallback with two number inputs
+            const container = document.getElementById('price-slider-container');
+            if (container) {
+                container.innerHTML = `
                 <div class="row g-2">
                     <div class="col">
                         <label for="min_price_input" class="form-label small">Min Price ($)</label>
@@ -608,8 +639,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
             `;
+            }
         }
-    }
-});
+    });
 </script>
 @endpush

@@ -3,6 +3,7 @@
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ShopController;
 Use App\Http\Controllers\CartController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\UserController;
@@ -18,7 +19,6 @@ Auth::routes();
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
 
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
-
 Route::get('/shop/{product_slug}', [ShopController::class, 'product_details'])->name('shop.product.details');
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
@@ -27,7 +27,11 @@ Route::put('/cart/increase-quantity/{rowId}', [CartController::class, 'increase_
 Route::put('/cart/decrease-quantity/{rowId}', [CartController::class, 'decrease_cart_quantity'])->name('cart.qty.decrease');
 Route::delete('/cart/remove/{rowId}', [CartController::class, 'remove_item'])->name('cart.item.remove');
 Route::delete('/cart/clear', [CartController::class, 'empty_cart'])->name('cart.empty');
-
+  
+route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+Route::post('/wishlist/add', [WishlistController::class, 'add_to_wishlist'])->name('wishlist.add');
+Route::post('/wishlist/remove', [WishlistController::class, 'remove_from_wishlist'])->name('wishlist.remove');
+Route::post('/wishlist/move-to-cart', [WishlistController::class, 'move_to_cart'])->name('wishlist.moveToCart');
 
 Route::middleware(['auth'])->group(function(){
     Route::get('/account-dashboard',[UserController::class,'index'])->name('user.account.dashboard');

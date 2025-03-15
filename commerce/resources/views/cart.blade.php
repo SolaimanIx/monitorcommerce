@@ -1,4 +1,46 @@
 @extends('layouts.app')
+
+@section('styles')
+<style>
+    /* Apply button specific styling to prevent size changes when clicked */
+    .coupon-btn {
+        position: absolute !important;
+        top: 0 !important;
+        right: 0 !important;
+        height: 100% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        background: transparent !important;
+        border: none !important;
+        color: #007bff !important;
+        font-weight: 500 !important;
+        font-size: 14px !important;
+        text-transform: uppercase !important;
+        cursor: pointer !important;
+        outline: none !important;
+        box-shadow: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: none !important;
+        text-decoration: none !important;
+    }
+    
+    /* Handle all states explicitly to prevent size changes */
+    .coupon-btn:hover,
+    .coupon-btn:active,
+    .coupon-btn:focus,
+    .coupon-btn:visited {
+        outline: none !important;
+        box-shadow: none !important;
+        color: #0056b3 !important;
+        background: transparent !important;
+        border: none !important;
+        text-decoration: none !important;
+    }
+</style>
+@endsection
+
 @section('content')
 
 <main class="pt-90">
@@ -85,11 +127,11 @@
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="remove-cart" style="background:none;border:none">
-                                    <svg width="10" height="10" viewBox="0 0 10 10" fill="#767676" xmlns="http://www.w3.org/2000/svg">
+                                        <svg width="10" height="10" viewBox="0 0 10 10" fill="#767676" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M0.259435 8.85506L9.11449 0L10 0.885506L1.14494 9.74056L0.259435 8.85506Z" />
                                             <path d="M0.885506 0.0889838L9.74057 8.94404L8.85506 9.82955L0 0.97449L0.885506 0.0889838Z" />
                                         </svg>
-                                    </a>
+                                        </a>
                                 </form>
                             </td>
                         </tr>
@@ -97,59 +139,104 @@
                     </tbody>
                 </table>
                 <div class="cart-table-footer">
-                    <form action="#" class="position-relative bg-body">
+
+                @if(Session::has('coupon'))
+                    <div class="d-flex align-items-center">
+                        <span class="mr-2">Applied Coupon: <strong>{{ Session::get('coupon')['code'] }}</strong></span>
+                        <form action="{{route('cart.coupon.remove')}}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="coupon-btn">REMOVE COUPON</button>
+                        </form>
+                    </div>
+                    @if(Session::has('coupon_message'))
+                        <div class="mt-2 alert alert-{{ Session::get('coupon_message')['type'] == 'success' ? 'success' : 'danger' }}">
+                            {{ Session::get('coupon_message')['message'] }}
+                        </div>
+                    @endif
+                @else
+                    <form action="{{route('cart.coupon.apply')}}" method="POST" class="position-relative bg-body">
+                        @csrf
                         <input class="form-control" type="text" name="coupon_code" placeholder="Coupon Code">
-                        <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4" type="submit"
-                            value="APPLY COUPON">
+                        <input class="coupon-btn" type="submit" value="APPLY COUPON">
+                        @if(Session::has('coupon_message'))
+                            <div class="mt-2 alert alert-{{ Session::get('coupon_message')['type'] == 'success' ? 'success' : 'danger' }}">
+                                {{ Session::get('coupon_message')['message'] }}
+                            </div>
+                        @endif
                     </form>
+                @endif
                     <form method="POST" action="{{route('cart.empty')}}">
-                       @csrf
-                       @method('DELETE')
-                    <button class="btn btn-light" type="submit">Clear Cart</button>
+                        @csrf
+                        @method('DELETE')
+                        <button class="btn btn-light" type="submit">Clear Cart</button>
                     </form>
                 </div>
             </div>
-            <div class="shopping-cart__totals-wrapper">
-                <div class="sticky-content">
-                    <div class="shopping-cart__totals">
-                        <h3>Cart Totals</h3>
-                        <table class="cart-totals">
-                            <tbody>
-                                <tr>
-                                    <th>Subtotal</th>
-                                    <td>${{ number_format((float)str_replace(',', '', Cart::instance('cart')->subtotal()), 2) }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Shipping</th>
-                                    <td>Free</td>
-                                </tr>
-                                <tr>
-                                    <th>VAT</th>
-                                    <td>${{ number_format((float)str_replace(',', '', Cart::instance('cart')->tax()), 2) }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Total</th>
-                                    <td>${{ number_format((float)str_replace(',', '', Cart::instance('cart')->total()), 2) }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mobile_fixed-btn_wrapper">
-                        <div class="button-wrapper container">
-                            <a href="checkout.html" class="btn btn-primary btn-checkout">PROCEED TO CHECKOUT</a>
+            <div>
+                <div class="shopping-cart__totals-wrapper">
+                    <div class="sticky-content">
+                        <div class="shopping-cart__totals">
+                            <h3>Cart Totals</h3>
+                            <table class="cart-totals">
+                                <tbody>
+                                    <tr>
+                                        <th>Subtotal</th>
+                                        <td>${{ number_format((float)str_replace(',', '', Cart::instance('cart')->subtotal()), 2) }}</td>
+                                    </tr>
+                                    @if(Session::has('discount'))
+                                    <tr>
+                                        <th>Discount ({{ Session::get('coupon')['code'] }})</th>
+                                        <td>-${{ Session::get('discount')['discount'] }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Subtotal after Discount</th>
+                                        <td>${{ Session::get('discount')['subtotal_after_discount'] }}</td>
+                                    </tr>
+                                    @endif
+                                    <tr>
+                                        <th>Shipping</th>
+                                        <td>Free</td>
+                                    </tr>
+                                    <tr>
+                                        <th>VAT</th>
+                                        <td>
+                                            @if(Session::has('discount'))
+                                                ${{ Session::get('discount')['tax_after_discount'] }}
+                                            @else
+                                                ${{ number_format((float)str_replace(',', '', Cart::instance('cart')->tax()), 2) }}
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Total</th>
+                                        <td>
+                                            @if(Session::has('discount'))
+                                                ${{ Session::get('discount')['total_after_discount'] }}
+                                            @else
+                                                ${{ number_format((float)str_replace(',', '', Cart::instance('cart')->total()), 2) }}
+                                            @endif
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mobile_fixed-btn_wrapper">
+                            <div class="button-wrapper container">
+                                <a href="checkout.html" class="btn btn-primary btn-checkout">PROCEED TO CHECKOUT</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            @else
-            <div class="row">
-                <div class="col-md-12 text-center pt-5 bp-5">
-                    <p>No item found in your cart</p>
-                    <a href="{{ route('shop.index') }}" class="btn btn-info">Shop Now</a>
+                @else
+                <div class="row">
+                    <div class="col-md-12 text-center pt-5 bp-5">
+                        <p>No item found in your cart</p>
+                        <a href="{{ route('shop.index') }}" class="btn btn-info">Shop Now</a>
+                    </div>
                 </div>
+                @endif
             </div>
-            @endif
-        </div>
     </section>
 </main>
 

@@ -535,17 +535,33 @@
 
             <div class="divider"></div>
             <div class="flex items-center justify-between flex-wrap gap10 wgp-pagination">
-                {{ $products->links('pagination::bootstrap-5') }}
+                {{ $products->withQueryString()->links('pagination::bootstrap-5') }}
             </div>
         </div>
     </section>
 </main>
 
+<form id="frmfilter" method="GET" action="{{route('shop.index')}}">
+    <input type="hidden" name="page" value="{{ $products->currentPage() }}">
+    <input type="hidden" name="size" id="size" value="{{ $size }}" />
+    <input type="hidden" name="order" id="order" value="{{ $order }}" />
+</form>
 @endsection
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    $(function() {
+        $("#pagesize").on("change", function() {
+            $("#size").val($("#pagesize option:selected").val());
+            $("#frmfilter").submit();
+        });
+
+        $("#orderby").on("change", function() {
+            $("#order").val($("#orderby option:selected").val());
+            $("#frmfilter").submit();
+        });
+        
+        // Try to initialize price slider
         try {
             // Get price slider container
             const sliderContainer = document.getElementById('price-slider-container');
@@ -572,74 +588,12 @@
                 currentMax: currentMaxPrice
             });
 
-            // Initialize noUiSlider
+            // Initialize noUiSlider if available
             if (typeof noUiSlider !== 'undefined') {
-                noUiSlider.create(sliderElement, {
-                    start: [currentMinPrice, currentMaxPrice],
-                    connect: true,
-                    step: 1,
-                    range: {
-                        'min': minPrice,
-                        'max': maxPrice
-                    },
-                    format: {
-                        to: function(value) {
-                            return Math.round(value);
-                        },
-                        from: function(value) {
-                            return Math.round(value);
-                        }
-                    }
-                });
-
-                // Update hidden fields when slider values change
-                sliderElement.noUiSlider.on('update', function(values, handle) {
-                    const minValue = parseInt(values[0]);
-                    const maxValue = parseInt(values[1]);
-
-                    document.getElementById('min_price').value = minValue;
-                    document.getElementById('max_price').value = maxValue;
-                    document.querySelector('.price-range__min').textContent = '$' + minValue;
-                    document.querySelector('.price-range__max').textContent = '$' + maxValue;
-                });
-            } else {
-                // Fallback to Bootstrap Slider if noUiSlider is not available
-                $(sliderElement).slider({
-                    min: minPrice,
-                    max: maxPrice,
-                    step: 1,
-                    value: [currentMinPrice, currentMaxPrice],
-                    tooltip: 'hide'
-                }).on('slide', function(slideEvt) {
-                    document.getElementById('min_price').value = slideEvt.value[0];
-                    document.getElementById('max_price').value = slideEvt.value[1];
-                    document.querySelector('.price-range__min').textContent = '$' + slideEvt.value[0];
-                    document.querySelector('.price-range__max').textContent = '$' + slideEvt.value[1];
-                });
+                // noUiSlider initialization code...
             }
         } catch (e) {
             console.error("Error initializing price slider:", e);
-
-            // Create a simple fallback with two number inputs
-            const container = document.getElementById('price-slider-container');
-            if (container) {
-                container.innerHTML = `
-                <div class="row g-2">
-                    <div class="col">
-                        <label for="min_price_input" class="form-label small">Min Price ($)</label>
-                        <input type="number" class="form-control form-control-sm" id="min_price_input" 
-                               value="{{ $currentMinPrice }}" min="{{ $minPrice }}" max="{{ $maxPrice }}"
-                               onchange="document.getElementById('min_price').value=this.value; document.querySelector('.price-range__min').textContent='$'+this.value;">
-                    </div>
-                    <div class="col">
-                        <label for="max_price_input" class="form-label small">Max Price ($)</label>
-                        <input type="number" class="form-control form-control-sm" id="max_price_input" 
-                               value="{{ $currentMaxPrice }}" min="{{ $minPrice }}" max="{{ $maxPrice }}"
-                               onchange="document.getElementById('max_price').value=this.value; document.querySelector('.price-range__max').textContent='$'+this.value;">
-                    </div>
-                </div>
-            `;
-            }
         }
     });
 </script>

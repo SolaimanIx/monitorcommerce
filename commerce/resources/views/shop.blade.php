@@ -1,6 +1,22 @@
 @extends('layouts.app')
 @section('content')
+<style>
+  .brand-list li, .category-list li{
+    line-height: 40px;
+  }
 
+  .brand-list li .chk-brand , .category-list li .chk-category{
+    width: 1rem;
+    height: 1rem;
+    color: #e4e4e4;
+    border: 0.125rem solid currentColor;
+    border-radius: 0;
+    margin-right: 0.75rem;
+  }
+  .filled-heart{
+    color: orange;
+  }
+</style>
 <main class="pt-90">
     <section class="shop-main container d-flex pt-4 pt-xl-5">
         <div class="shop-sidebar side-sticky bg-body" id="shopFilter">
@@ -29,36 +45,17 @@
                         aria-labelledby="accordion-heading-1" data-bs-parent="#categories-list">
                         <div class="accordion-body px-0 pb-0 pt-3">
                             <ul class="list list-inline mb-0">
+                                @foreach($categories as $category)
                                 <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Dresses</a>
+                                    <a href="{{ route('shop.index', ['category' => $category->name]) }}"
+                                        class="menu-link py-1 d-flex align-items-center {{ $selectedCategory === $category->name ? 'fw-bold active' : '' }}">
+                                        @if($selectedCategory === $category->name)
+                                        <i class="fas fa-check me-2"></i>
+                                        @endif
+                                        {{ $category->name }}
+                                    </a>
                                 </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Shorts</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Sweatshirts</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Swimwear</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Jackets</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">T-Shirts & Tops</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Jeans</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Trousers</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Men</a>
-                                </li>
-                                <li class="list-item">
-                                    <a href="#" class="menu-link py-1">Jumpers & Cardigans</a>
-                                </li>
+                                @endforeach
                             </ul>
                         </div>
                     </div>
@@ -132,6 +129,7 @@
             </div>
 
 
+            <!-- Brand filters section (previously used for Categories) -->
             <div class="accordion" id="brand-filters">
                 <div class="accordion-item mb-4 pb-3">
                     <h5 class="accordion-header" id="accordion-heading-brand">
@@ -149,19 +147,97 @@
                     <div id="accordion-filter-brand" class="accordion-collapse collapse show border-0"
                         aria-labelledby="accordion-heading-brand" data-bs-parent="#brand-filters">
                         <div class="search-field multi-select accordion-body px-0 pb-0">
-                            <ul class="list list-inline mb-0 brand-list">
-                                @foreach ($brands as $brand)
-                                <li class="list-item">
-                                    <span class="menu-link py-1">
-                                        <input type="checkbox" name="brands" value="{{ $brand->id }}" class="chk-brand"
-                                        @if(in_array($brand->id, explode(',',$f_brands))) checked= "checked" @endif>
-                                        {{ $brand->name }}
-                                    </span>
-                                    <span class="text-right float-end">
-                                        {{ $brand->products->count() }}
-                                    </span>
+                            <ul class="multi-select__list list-unstyled">
+                                @foreach($brands as $brand)
+                                <li class="search-suggestion__item multi-select__item text-primary">
+                                    <a href="{{ route('shop.index', ['filter_brand' => $brand->name]) }}"
+                                        class="d-flex w-100 text-decoration-none {{ $selectedBrand === $brand->name ? 'fw-bold' : '' }}">
+                                        <span class="me-auto">{{ $brand->name }}</span>
+                                        @if($selectedBrand === $brand->name)
+                                        <i class="fas fa-check"></i>
+                                        @endif
+                                    </a>
                                 </li>
                                 @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured items / Sorting section -->
+            <div class="accordion" id="featured-filters">
+                <div class="accordion-item mb-4 pb-3">
+                    <h5 class="accordion-header" id="accordion-heading-featured">
+                        <button class="accordion-button p-0 border-0 fs-5 text-uppercase" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#accordion-filter-featured" aria-expanded="true" aria-controls="accordion-filter-featured">
+                            Sort By
+                            <svg class="accordion-button__icon type2" viewBox="0 0 10 6" xmlns="http://www.w3.org/2000/svg">
+                                <g aria-hidden="true" stroke="none" fill-rule="evenodd">
+                                    <path
+                                        d="M5.35668 0.159286C5.16235 -0.053094 4.83769 -0.0530941 4.64287 0.159286L0.147611 5.05963C-0.0492049 5.27473 -0.049205 5.62357 0.147611 5.83813C0.344427 6.05323 0.664108 6.05323 0.860924 5.83813L5 1.32706L9.13858 5.83867C9.33589 6.05378 9.65507 6.05378 9.85239 5.83867C10.0492 5.62357 10.0492 5.27473 9.85239 5.06018L5.35668 0.159286Z" />
+                                </g>
+                            </svg>
+                        </button>
+                    </h5>
+                    <div id="accordion-filter-featured" class="accordion-collapse collapse show border-0"
+                        aria-labelledby="accordion-heading-featured" data-bs-parent="#featured-filters">
+                        <div class="search-field multi-select accordion-body px-0 pb-0">
+                            <ul class="multi-select__list list-unstyled">
+                                <li class="search-suggestion__item multi-select__item text-primary">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => null])) }}"
+                                        class="d-flex w-100 text-decoration-none {{ $selectedSort === null ? 'fw-bold' : '' }}">
+                                        <span class="me-auto">Default</span>
+                                        @if($selectedSort === null)
+                                        <i class="fas fa-check"></i>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li class="search-suggestion__item multi-select__item text-primary">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'newest'])) }}"
+                                        class="d-flex w-100 text-decoration-none {{ $selectedSort === 'newest' ? 'fw-bold' : '' }}">
+                                        <span class="me-auto">New Arrivals</span>
+                                        @if($selectedSort === 'newest')
+                                        <i class="fas fa-check"></i>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li class="search-suggestion__item multi-select__item text-primary">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'price_low'])) }}"
+                                        class="d-flex w-100 text-decoration-none {{ $selectedSort === 'price_low' ? 'fw-bold' : '' }}">
+                                        <span class="me-auto">Price: Low to High</span>
+                                        @if($selectedSort === 'price_low')
+                                        <i class="fas fa-check"></i>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li class="search-suggestion__item multi-select__item text-primary">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'price_high'])) }}"
+                                        class="d-flex w-100 text-decoration-none {{ $selectedSort === 'price_high' ? 'fw-bold' : '' }}">
+                                        <span class="me-auto">Price: High to Low</span>
+                                        @if($selectedSort === 'price_high')
+                                        <i class="fas fa-check"></i>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li class="search-suggestion__item multi-select__item text-primary">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'name_az'])) }}"
+                                        class="d-flex w-100 text-decoration-none {{ $selectedSort === 'name_az' ? 'fw-bold' : '' }}">
+                                        <span class="me-auto">Name: A-Z</span>
+                                        @if($selectedSort === 'name_az')
+                                        <i class="fas fa-check"></i>
+                                        @endif
+                                    </a>
+                                </li>
+                                <li class="search-suggestion__item multi-select__item text-primary">
+                                    <a href="{{ route('shop.index', array_merge(request()->except('sort'), ['sort' => 'name_za'])) }}"
+                                        class="d-flex w-100 text-decoration-none {{ $selectedSort === 'name_za' ? 'fw-bold' : '' }}">
+                                        <span class="me-auto">Name: Z-A</span>
+                                        @if($selectedSort === 'name_za')
+                                        <i class="fas fa-check"></i>
+                                        @endif
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -185,17 +261,42 @@
                     </h5>
                     <div id="accordion-filter-price" class="accordion-collapse collapse show border-0"
                         aria-labelledby="accordion-heading-price" data-bs-parent="#price-filters">
-                        <input class="price-range-slider" type="text" name="price_range" value="" data-slider-min="10"
-                            data-slider-max="1000" data-slider-step="5" data-slider-value="[250,450]" data-currency="$" />
-                        <div class="price-range__info d-flex align-items-center mt-2">
-                            <div class="me-auto">
-                                <span class="text-secondary">Min Price: </span>
-                                <span class="price-range__min">$250</span>
-                            </div>
-                            <div>
-                                <span class="text-secondary">Max Price: </span>
-                                <span class="price-range__max">$450</span>
-                            </div>
+                        <div class="price-filter-content">
+                            <form id="price-filter-form" method="GET" action="{{ route('shop.index') }}">
+                                <!-- Preserve existing filters -->
+                                @foreach(request()->except(['min_price', 'max_price', 'page', 'price_range']) as $key => $value)
+                                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                @endforeach
+
+                                <div id="price-slider-container"
+                                    data-min="{{ $minPrice }}"
+                                    data-max="{{ $maxPrice }}"
+                                    data-current-min="{{ $currentMinPrice }}"
+                                    data-current-max="{{ $currentMaxPrice }}">
+                                    <!-- The slider will be inserted here by JS -->
+                                </div>
+
+                                <input type="hidden" name="min_price" id="min_price" value="{{ $currentMinPrice }}">
+                                <input type="hidden" name="max_price" id="max_price" value="{{ $currentMaxPrice }}">
+
+                                <div class="price-range__info d-flex align-items-center mt-3">
+                                    <div class="me-auto">
+                                        <span class="text-secondary">Min Price: </span>
+                                        <span class="price-range__min">${{ $currentMinPrice }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-secondary">Max Price: </span>
+                                        <span class="price-range__max">${{ $currentMaxPrice }}</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <button type="submit" class="btn btn-sm btn-primary">Apply Filter</button>
+                                    @if(request()->has('min_price') || request()->has('max_price'))
+                                    <a href="{{ route('shop.index', array_diff_key(request()->all(), ['min_price' => '', 'max_price' => '', 'price_range' => '', 'page' => ''])) }}"
+                                        class="btn btn-sm btn-outline-secondary">Reset</a>
+                                    @endif
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -296,20 +397,16 @@
                     <a href="#" class="menu-link menu-link_us-s text-uppercase fw-medium">The Shop</a>
                 </div>
 
-                <div class="shop-acs d-flex align-items-center justify-content-md-end flex-grow-1">
-                    <select class="shop-acs__select form-select w-auto border-0 py-0 order-1 order-md-0" aria-label="Page Size" id="pagesize" name="pagesize" style="margin-right:20px;">
-                        <option value="12" {{ $size==12 ? 'selected' : '' }}>Show 12</option>
-                        <option value="24" {{ $size==24 ? 'selected' : '' }}>24</option>
-                        <option value="48" {{ $size==48 ? 'selected' : '' }}>48</option>
-                        <option value="102" {{ $size==102 ? 'selected' : '' }}>102</option>
-                    </select>
-
-                    <select class="shop-acs__select form-select w-auto border-0 py-0 order-1 order-md-0" aria-label="Sort Items" name="orderby" id="orderby">
-                        <option value="-1" {{ $order == -1 ? 'selected' : '' }}>Default</option>
-                        <option value="1" {{ $order == 1 ? 'selected' : '' }}>Date, New To Old</option>
-                        <option value="2" {{ $order == 2 ? 'selected' : '' }}>Date, Old To New</option>
-                        <option value="3" {{ $order == 3 ? 'selected' : '' }}>Price, Low To High</option>
-                        <option value="4" {{ $order == 4 ? 'selected' : '' }}>Price, High To Low</option>
+                <div class="shop-acs d-flex align-items-center justify-content-between justify-content-md-end flex-grow-1">
+                    <!-- Update the select dropdown to use the sort parameter -->
+                    <select class="shop-acs__select form-select w-auto border-0 py-0 order-1 order-md-0"
+                        aria-label="Sort Items" name="sort" onchange="window.location.href=`{{ route('shop.index') }}?sort=${this.value}`">
+                        <option value="" {{ $selectedSort === null ? 'selected' : '' }}>Default Sorting</option>
+                        <option value="newest" {{ $selectedSort === 'newest' ? 'selected' : '' }}>New Arrivals</option>
+                        <option value="price_low" {{ $selectedSort === 'price_low' ? 'selected' : '' }}>Price, low to high</option>
+                        <option value="price_high" {{ $selectedSort === 'price_high' ? 'selected' : '' }}>Price, high to low</option>
+                        <option value="name_az" {{ $selectedSort === 'name_az' ? 'selected' : '' }}>Alphabetically, A-Z</option>
+                        <option value="name_za" {{ $selectedSort === 'name_za' ? 'selected' : '' }}>Alphabetically, Z-A</option>
                     </select>
 
                     <div class="shop-asc__seprator mx-3 bg-light d-none d-md-block order-md-0"></div>
@@ -408,13 +505,28 @@
                                 </div>
                                 <span class="reviews-note text-lowercase text-secondary ms-1">8k+ reviews</span>
                             </div>
-
-                            <button class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist"
+                            @if(Cart::instance('wishlist')->content()->where('id', $product->id)->count() > 0)
+                            <button type="submit" class=" position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist filled-heart"
                                 title="Add To Wishlist">
                                 <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <use href="#icon_heart" />
                                 </svg>
                             </button>
+                            @else
+                            <form method="POST" action="{{ route('wishlist.add') }}">
+                                @csrf
+                                <input type="hidden" name="id" value="{{ $product->id }}" />
+                                <input type="hidden" name="name" value="{{ $product->name }}" />
+                                <input type="hidden" name="price" value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+                                <input type="hidden" name="quantity" value="1" />
+                                <button type="submit" class=" position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist"
+                                    title="Add To Wishlist">
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <use href="#icon_heart" />
+                                    </svg>
+                                </button>
+                            </form>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -446,19 +558,45 @@ $(function() {
         $("#frmfilter").submit();
     });
 
-    $("#orderby").on("change", function() {
-        $("#order").val($("#orderby option:selected").val());
-        $("#frmfilter").submit();
-    });
-
-    $("input[name='brands']").on("change", function() {
-        var brands = [];
-        $("input[name='brands']:checked").each(function() {
-            brands.push($(this).val());
+        $("#orderby").on("change", function() {
+            $("#order").val($("#orderby option:selected").val());
+            $("#frmfilter").submit();
         });
-        $("#hdnBrands").val(brands.join(','));
-        $("#frmfilter").submit();
+        
+        // Try to initialize price slider
+        try {
+            // Get price slider container
+            const sliderContainer = document.getElementById('price-slider-container');
+            if (!sliderContainer) {
+                console.error('Price slider container not found');
+                return;
+            }
+
+            // Get slider configuration from data attributes
+            const minPrice = parseInt(sliderContainer.dataset.min);
+            const maxPrice = parseInt(sliderContainer.dataset.max);
+            const currentMinPrice = parseInt(sliderContainer.dataset.currentMin);
+            const currentMaxPrice = parseInt(sliderContainer.dataset.currentMax);
+
+            // Create slider element
+            const sliderElement = document.createElement('div');
+            sliderElement.classList.add('price-range-slider');
+            sliderContainer.appendChild(sliderElement);
+
+            console.log('Creating slider with:', {
+                min: minPrice,
+                max: maxPrice,
+                currentMin: currentMinPrice,
+                currentMax: currentMaxPrice
+            });
+
+            // Initialize noUiSlider if available
+            if (typeof noUiSlider !== 'undefined') {
+                // noUiSlider initialization code...
+            }
+        } catch (e) {
+            console.error("Error initializing price slider:", e);
+        }
     });
-});
 </script>
 @endpush

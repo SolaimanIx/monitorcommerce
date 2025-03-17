@@ -1336,7 +1336,7 @@ function pureFadeOut(e) {
   });
 
   $('.checkout-form .btn-checkout').off('click').on('click', function() {
-    window.location.href='./shop_order_complete.html';
+    window.location.href='./order-confirmation';
   });
 
   document.querySelector('.js-show-register').addEventListener('click', function(e) {

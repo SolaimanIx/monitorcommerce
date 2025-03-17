@@ -7,6 +7,9 @@ use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Coupon;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -19,28 +22,31 @@ class AdminController extends Controller
         return view('admin.dashboard');
     }
 
-    public function brands(){
+    public function brands()
+    {
         $brands = Brand::orderBy('id', 'desc')->paginate(10);
         return view('admin.brands', compact('brands'));
     }
 
-    public function add_brand(){
+    public function add_brand()
+    {
         return view('admin.brand-add');
     }
 
-    public function brand_store(Request $request){
+    public function brand_store(Request $request)
+    {
         $request->validate([
-            'name'=> 'required',
-            'slug'=> 'required|unique:brands,slug',
-            'image'=> 'mimes:png,jpg,jpeg|max:2048'
+            'name' => 'required',
+            'slug' => 'required|unique:brands,slug',
+            'image' => 'mimes:png,jpg,jpeg|max:2048'
         ]);
-      
+
         $brand = new Brand();
         $brand->name = $request->name;
         $brand->slug = str::slug($request->name);
         $image = $request->file('image');
         $file_extension = $request->file('image')->extension();
-        $file_name = Carbon::now()->timestamp.'.'.$file_extension;
+        $file_name = Carbon::now()->timestamp . '.' . $file_extension;
         $this->GenerateBrandThumbnailsImage($image, $file_name);
         $brand->image = $file_name;
         $brand->save();
@@ -57,28 +63,27 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'slug' =>'required|unique:brands,slug,'.$request->id,
+            'slug' => 'required|unique:brands,slug,' . $request->id,
             'image' => 'mimes:png,jpg,jpeg|max:2048'
         ]);
-    
+
         $brand = Brand::find($request->id);
         $brand->name = $request->name;
         $brand->slug = Str::slug($request->name);
-        
-        if($request->hasFile('image')){
-            if(File::exists(public_path('uploads/brands').'/'.$brand->image))
-            {
-                File::delete(public_path('uploads/brands').'/'.$brand->image);
+
+        if ($request->hasFile('image')) {
+            if (File::exists(public_path('uploads/brands') . '/' . $brand->image)) {
+                File::delete(public_path('uploads/brands') . '/' . $brand->image);
             }
             $image = $request->file('image');
             $file_extention = $request->file('image')->extension();
-            $file_name = Carbon::now()->timestamp.'.'.$file_extention;
-            $this->GenerateBrandThumbnailsImage($image,$file_name);
+            $file_name = Carbon::now()->timestamp . '.' . $file_extention;
+            $this->GenerateBrandThumbnailsImage($image, $file_name);
             $brand->image = $file_name;
         }
-        
+
         $brand->save();
-        return redirect()->route('admin.brands')->with('status','Brand has been updated successfully!');
+        return redirect()->route('admin.brands')->with('status', 'Brand has been updated successfully!');
     }
 
     public function GenerateBrandThumbnailsImage($image, $imageName)
@@ -86,7 +91,7 @@ class AdminController extends Controller
         $destinationPath = public_path('uploads/brands');
         $img = Image::read($image->path());
         $img->cover(124, 124, "top");
-        $img->resize(124, 124, function($constraint) {
+        $img->resize(124, 124, function ($constraint) {
             $constraint->aspectRatio();
         })->save($destinationPath . '/' . $imageName);
     }
@@ -102,16 +107,19 @@ class AdminController extends Controller
         return redirect()->route('admin.brands')->with('status', 'Brand has been deleted successfully!');
     }
 
-    public function categories(){
+    public function categories()
+    {
         $categories = Category::orderBy('id', 'desc')->paginate(10);
         return view('admin.categories', compact('categories'));
     }
 
-    public function category_add(){
+    public function category_add()
+    {
         return view('admin.category-add');
     }
 
-    public function category_store(Request $request) {
+    public function category_store(Request $request)
+    {
         $request->validate([
             'name' => 'required',
             'slug' => 'required|unique:categories,slug',
@@ -123,18 +131,19 @@ class AdminController extends Controller
         $category->slug = Str::slug($request->name);
         $image = $request->file('image');
         $file_extension = $request->file('image')->extension();
-        $file_name = Carbon::now()->timestamp.'.'.$file_extension;
+        $file_name = Carbon::now()->timestamp . '.' . $file_extension;
         $this->GenerateCategoryThumbnailsImage($image, $file_name);
         $category->image = $file_name;
         $category->save();
         return redirect()->route('admin.categories')->with('status', 'Category has been added successfully!');
     }
 
-    public function GenerateCategoryThumbnailsImage($image, $imageName) {
+    public function GenerateCategoryThumbnailsImage($image, $imageName)
+    {
         $destinationPath = public_path('uploads/categories');
         $img = Image::read($image->path());
         $img->cover(124, 124, "top");
-        $img->resize(124, 124, function($constraint) {
+        $img->resize(124, 124, function ($constraint) {
             $constraint->aspectRatio();
         })->save($destinationPath . '/' . $imageName);
     }
@@ -144,33 +153,32 @@ class AdminController extends Controller
         $category = Category::find($id);
         return view('admin.category-edit', compact('category'));
     }
-    
+
     public function category_update(Request $request)
     {
         $request->validate([
             'name' => 'required',
-            'slug' =>'required|unique:categories,slug,'.$request->id,
+            'slug' => 'required|unique:categories,slug,' . $request->id,
             'image' => 'mimes:png,jpg,jpeg|max:2048'
         ]);
-    
+
         $category = Category::find($request->id);
         $category->name = $request->name;
         $category->slug = Str::slug($request->name);
-        
-        if($request->hasFile('image')){
-            if(File::exists(public_path('uploads/categories').'/'.$category->image))
-            {
-                File::delete(public_path('uploads/categories').'/'.$category->image);
+
+        if ($request->hasFile('image')) {
+            if (File::exists(public_path('uploads/categories') . '/' . $category->image)) {
+                File::delete(public_path('uploads/categories') . '/' . $category->image);
             }
             $image = $request->file('image');
             $file_extention = $request->file('image')->extension();
-            $file_name = Carbon::now()->timestamp.'.'.$file_extention;
-            $this->GenerateCategoryThumbnailsImage($image,$file_name);
+            $file_name = Carbon::now()->timestamp . '.' . $file_extention;
+            $this->GenerateCategoryThumbnailsImage($image, $file_name);
             $category->image = $file_name;
         }
-        
+
         $category->save();
-        return redirect()->route('admin.categories')->with('status','Category has been updated successfully!');
+        return redirect()->route('admin.categories')->with('status', 'Category has been updated successfully!');
     }
 
     public function category_delete($id)
@@ -183,7 +191,8 @@ class AdminController extends Controller
         return redirect()->route('admin.categories')->with('status', 'Category has been deleted successfully!');
     }
 
-    public function products(){
+    public function products()
+    {
         $products = Product::orderBy('id', 'desc')->paginate(10);
         return view('admin.products', compact('products'));
     }
@@ -264,20 +273,20 @@ class AdminController extends Controller
 
         return redirect()->route('admin.products')->with('status' . 'Product has been added Successfully');
     }
-    
+
 
     public function GenerateProductThumbnailImage($image, $imageName)
     {
         $destinationPathThumbnail = public_path('uploads/products/thumbnails');
         $destinationPath = public_path('uploads/products');
         $img = Image::read($image->path());
-    
+
         $img->cover(540, 689, "top")
-            ->resize(540, 689, function($constraint) {
+            ->resize(540, 689, function ($constraint) {
                 $constraint->aspectRatio();
             })->save($destinationPath . '/' . $imageName);
-    
-        $img->resize(104, 104, function($constraint) {
+
+        $img->resize(104, 104, function ($constraint) {
             $constraint->aspectRatio();
         })->save($destinationPathThumbnail . '/' . $imageName);
     }
@@ -294,7 +303,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'slug' => 'required|unique:products,slug,'.$request->id,
+            'slug' => 'required|unique:products,slug,' . $request->id,
             'short_description' => 'required',
             'description' => 'required',
             'regular_price' => 'required',
@@ -307,7 +316,7 @@ class AdminController extends Controller
             'category_id' => 'required',
             'brand_id' => 'required',
         ]);
-    
+
         $product = Product::find($request->id);
         $product->name = $request->name;
         $product->slug = Str::slug($request->name);
@@ -356,7 +365,7 @@ class AdminController extends Controller
         $product->save();
         return redirect()->route('admin.products')->with('status', 'Product has been updated successfully!');
     }
-    
+
 
     public function product_delete($id)
     {
@@ -380,16 +389,19 @@ class AdminController extends Controller
         $product->delete();
         return redirect()->route('admin.products')->with('status', 'Product has been deleted successfully!');
     }
-    public function Coupons(){
+    public function Coupons()
+    {
         $coupons = Coupon::orderBy('expiry_date', 'desc')->paginate(12);
         return view('admin.coupons', compact('coupons'));
     }
 
-    public function coupon_add(){
+    public function coupon_add()
+    {
         return view('admin.coupon-add');
     }
 
-    public function coupon_store(Request $request){
+    public function coupon_store(Request $request)
+    {
         $request->validate([
             'code' => 'required|unique:coupons,code',
             'type' => 'required',
@@ -406,7 +418,7 @@ class AdminController extends Controller
         $coupon->save();
         return redirect()->route('admin.coupons')->with('status', 'Coupon has been added successfully!');
     }
-    
+
     public function coupon_edit($id)
     {
         $coupon = Coupon::find($id);
@@ -415,13 +427,13 @@ class AdminController extends Controller
     public function coupon_update(Request $request)
     {
         $request->validate([
-            'code' => 'required|unique:coupons,code,'.$request->id,
+            'code' => 'required|unique:coupons,code,' . $request->id,
             'type' => 'required',
             'value' => 'required',
             'cart_value' => 'required',
             'expiry_date' => 'required'
         ]);
-    
+
         $coupon = Coupon::find($request->id);
         $coupon->code = $request->code;
         $coupon->type = $request->type;
@@ -429,7 +441,7 @@ class AdminController extends Controller
         $coupon->cart_value = $request->cart_value;
         $coupon->expiry_date = $request->expiry_date;
         $coupon->save();
-        return redirect()->route('admin.coupons')->with('status','Coupon has been updated successfully!');
+        return redirect()->route('admin.coupons')->with('status', 'Coupon has been updated successfully!');
     }
     public function coupon_delete($id)
     {
@@ -496,6 +508,44 @@ class AdminController extends Controller
         $coupon->save();
         return response()->json(['status' => 'Coupon has been activated successfully!']);
     }
-    
 
+    public function orders()
+    {
+        $orders = Order::with('orderItems')->orderBy('created_at', 'desc')->paginate(12);
+        return view('admin.orders', compact('orders'));
+    }
+
+    public function order_details($order_id)
+    {
+        $order = Order::find($order_id);
+        $orderItems = OrderItem::where('order_id', $order_id)->orderBy('id')->paginate(12);
+        $transaction = Transaction::where('order_id', $order_id)->first();
+        return view('admin.order-details', compact('order', 'orderItems', 'transaction'));
+    }
+
+    public function update_order_status(Request $request)
+    {
+        $order = Order::find($request->order_id);
+        $order->status = $request->order_status;
+
+        if ($request->order_status == 'delivered') {
+            $order->delivered_date = Carbon::now();
+        } else if ($request->order_status == 'canceled') {
+            $order->canceled_date = Carbon::now();
+        }
+
+        $order->save();
+
+        if ($request->order_status == 'delivered') {
+            $transaction = Transaction::where('order_id', $request->order_id)->first();
+            if ($transaction) {
+                $transaction->status = 'approved';
+                $transaction->save();
+            }
+        }
+
+        return back()->with("status", "Status changed successfully!");
+    }
+
+    
 }

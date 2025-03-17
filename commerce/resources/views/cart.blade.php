@@ -184,9 +184,9 @@
                                         <th>Subtotal</th>
                                         <td>${{ number_format((float)str_replace(',', '', Cart::instance('cart')->subtotal()), 2) }}</td>
                                     </tr>
-                                    @if(Session::has('discount'))
+                                    @if(Session::has('discount') && Session::has('coupon'))
                                     <tr>
-                                        <th>Discount ({{ Session::get('coupon')['code'] }})</th>
+                                        <th>Discount ({{ Session::get('coupon')['code'] ?? 'N/A' }})</th>
                                         <td>-${{ Session::get('discount')['discount'] }}</td>
                                     </tr>
                                     <tr>
@@ -201,7 +201,7 @@
                                     <tr>
                                         <th>VAT</th>
                                         <td>
-                                            @if(Session::has('discount'))
+                                            @if(Session::has('discount') && Session::has('coupon'))
                                                 ${{ Session::get('discount')['tax_after_discount'] }}
                                             @else
                                                 ${{ number_format((float)str_replace(',', '', Cart::instance('cart')->tax()), 2) }}
@@ -211,7 +211,7 @@
                                     <tr>
                                         <th>Total</th>
                                         <td>
-                                            @if(Session::has('discount'))
+                                            @if(Session::has('discount') && Session::has('coupon'))
                                                 ${{ Session::get('discount')['total_after_discount'] }}
                                             @else
                                                 ${{ number_format((float)str_replace(',', '', Cart::instance('cart')->total()), 2) }}
@@ -223,7 +223,7 @@
                         </div>
                         <div class="mobile_fixed-btn_wrapper">
                             <div class="button-wrapper container">
-                                <a href="checkout.html" class="btn btn-primary btn-checkout">PROCEED TO CHECKOUT</a>
+                                <a href="{{route('cart.checkout')}}" class="btn btn-primary btn-checkout">PROCEED TO CHECKOUT</a>
                             </div>
                         </div>
                     </div>

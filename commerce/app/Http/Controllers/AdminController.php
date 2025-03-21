@@ -12,6 +12,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Transaction;
 use App\Models\Slide;
+use App\Models\Contact;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
@@ -619,7 +620,7 @@ class AdminController extends Controller
 
         $slide->image = $file_name;
         $slide->save();
-        
+
         return redirect()->route('admin.slides')->with("status", "Slide added successfully!");
     }
     public function GenerateSlideThumbailsImage($image, $imageName)
@@ -678,5 +679,18 @@ class AdminController extends Controller
         }
         $slide->delete();
         return redirect()->route('admin.slides')->with("status", "Slide deleted successfully!");
+    }
+
+
+    public function contacts()
+    {
+        $contacts = Contact::orderBy('created_at', 'desc')->paginate(10);
+        return view('admin.contacts', compact('contacts'));
+    }
+    public function contact_delete($id)
+    {
+        $contact = Contact::find($id);
+        $contact->delete();
+        return redirect()->route('admin.contacts')->with("status", "Contact deleted successfully!");
     }
 }

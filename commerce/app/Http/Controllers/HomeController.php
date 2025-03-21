@@ -1,6 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Brand;
+use App\Models\Category;
+use App\Models\Product;
+use App\Models\Slide;
 
 use Illuminate\Http\Request;
 
@@ -9,7 +13,11 @@ class HomeController extends Controller
 
     public function index()
     {
-        return view('index');
+        $slides = Slide::where('status', 1)->get()->take(3);
+        $categories = Category::orderBy('name')->get();  
+        $sproducts = Product::whereNotNull('sale_price')->where('sale_price', '>', 0)->inRandomOrder()->get()->take(8);
+        $fproducts = Product::where('featured', 1)->get()->take(8);
+        return view('index',compact('slides','categories','sproducts', 'fproducts'));
     }
 
 

@@ -134,9 +134,9 @@
                                     </ul>
                                 </li>
                                 <li class="menu-item">
-                                    <a href="slider.html" class="">
+                                    <a href="{{ route('admin.slides') }}" class="">
                                         <div class="icon"><i class="icon-image"></i></div>
-                                        <div class="text">Slider</div>
+                                        <div class="text">Slides</div>
                                     </a>
                                 </li>
                                 <li class="menu-item">
@@ -471,7 +471,10 @@
     <script src="{{ asset('js/sweetalert.min.js') }}"></script>
     <script src="{{ asset('js/apexcharts/apexcharts.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
-    <script>
+
+
+    @push('scripts')
+<script>
         (function($) {
 
             var tfLineChart = (function() {
@@ -481,17 +484,17 @@
                     var options = {
                         series: [{
                                 name: 'Total',
-                                data: [0.00, 0.00, 0.00, 0.00, 0.00, 273.22, 208.12, 0.00, 0.00, 0.00, 0.00, 0.00]
+                                data: [{{ isset($AmountM) ? $AmountM : 0 }}],
                             }, {
                                 name: 'Pending',
-                                data: [0.00, 0.00, 0.00, 0.00, 0.00, 273.22, 208.12, 0.00, 0.00, 0.00, 0.00, 0.00]
+                                data: [{{ isset($OrderedAmountM) ? $OrderedAmountM : 0 }}]
                             },
                             {
                                 name: 'Delivered',
-                                data: [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00]
+                                data: [{{ isset($DeliveredAmountM) ? $DeliveredAmountM : 0 }}]
                             }, {
                                 name: 'Canceled',
-                                data: [0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00]
+                                data: [{{ isset($CanceledAmountM) ? $CanceledAmountM : 0 }}]
                             }
                         ],
                         chart: {
@@ -541,7 +544,7 @@
                         }
                     };
 
-                    chart = new ApexCharts(
+                    var chart = new ApexCharts(
                         document.querySelector("#line-chart-8"),
                         options
                     );
@@ -571,6 +574,8 @@
         })(jQuery);
     </script>
     @stack('scripts')
+
+
 
 </body>
 
